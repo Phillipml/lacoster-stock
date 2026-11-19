@@ -6,7 +6,16 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q") ?? undefined;
     const produtos = await listProducts(q);
-    return NextResponse.json({ produtos });
+    return NextResponse.json(
+      { produtos },
+      {
+        headers: {
+          "Cache-Control": q?.trim()
+            ? "private, no-store"
+            : "private, max-age=30, stale-while-revalidate=60",
+        },
+      },
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro ao listar";
     return NextResponse.json({ error: message }, { status: 500 });

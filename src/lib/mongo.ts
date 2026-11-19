@@ -54,6 +54,7 @@ async function ensureProductIndexes(col: Collection<Product>) {
 export async function productsCollection(): Promise<Collection<Product>> {
   const db = await getDb();
   const col = db.collection<Product>("produtos");
-  await ensureProductIndexes(col);
+  // não bloqueia listagem/CRUD: índices já existem no Atlas
+  void ensureProductIndexes(col);
   return col;
 }

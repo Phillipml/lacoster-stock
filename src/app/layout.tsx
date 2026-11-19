@@ -1,16 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-
-const body = Outfit({
-  subsets: ["latin"],
-  variable: "--font-body",
-});
-
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-});
 
 export const metadata: Metadata = {
   title: "Lacoster Stock",
@@ -27,11 +16,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${body.variable} ${display.variable} h-full`}
-      suppressHydrationWarning
-    >
+    <html lang="pt-BR" className="h-full" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full antialiased" suppressHydrationWarning>
         {children}
       </body>

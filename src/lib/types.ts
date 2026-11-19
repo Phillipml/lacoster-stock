@@ -73,16 +73,23 @@ export function toProductDTO(doc: Product): ProductDTO {
     doc.discounted_value ??
     calcDiscountedValue(final_value, discount_percentage);
 
+  const created = doc.created_at ? new Date(doc.created_at) : new Date();
+  const updated = doc.updated_at ? new Date(doc.updated_at) : new Date();
+
   return {
     id: String(doc._id),
-    name: doc.name,
+    name: doc.name ?? "",
     base_value: doc.base_value ?? 0,
     markup_percentage: doc.markup_percentage ?? 0,
     final_value,
     discount_percentage,
     discounted_value,
     notes: doc.notes ?? "",
-    created_at: new Date(doc.created_at).toISOString(),
-    updated_at: new Date(doc.updated_at).toISOString(),
+    created_at: Number.isNaN(created.getTime())
+      ? new Date().toISOString()
+      : created.toISOString(),
+    updated_at: Number.isNaN(updated.getTime())
+      ? new Date().toISOString()
+      : updated.toISOString(),
   };
 }

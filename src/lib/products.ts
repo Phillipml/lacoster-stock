@@ -79,22 +79,81 @@ function isDuplicateKeyError(err: unknown) {
   );
 }
 
-export async function listProducts(q?: string): Promise<ProductDTO[]> {
-  const col = await productsCollection();
-  const term = q?.trim();
+declare global {
+  // eslint-disable-next-line no-var
+  var _produtosListCache:
+    | { at: number; data: ProductDTO[]; inflight?: Promise<ProductDTO[]> }
+    | undefined;
+}
 
-  if (!term) {
-    const docs = await col.find({}).sort({ name: 1 }).limit(5000).toArray();
-    return docs.map(toProductDTO);
+const LIST_CACHE_TTL_MS = 60_000;
+
+const LIST_PROJECTION = {
+  name: 1,
+  base_value: 1,
+  markup_percentage: 1,
+  final_value: 1,
+  discount_percentage: 1,
+  discounted_value: 1,
+  notes: 1,
+  created_at: 1,
+  updated_at: 1,
+} as const;
+
+function invalidateListCache() {
+  if (global._produtosListCache) {
+    global._produtosListCache = {
+      at: 0,
+      data: global._produtosListCache.data,
+    };
   }
+}
+
+export async function listProducts(q?: string): Promise<ProductDTO[]> {
+  const term = q?.trim();
+  if (!term) {
+    const cached = global._produtosListCache;
+    if (cached && Date.now() - cached.at < LIST_CACHE_TTL_MS) {
+      return cached.data;
+    }
+    if (cached?.inflight) return cached.inflight;
+
+    const inflight = (async () => {
+      const col = await productsCollection();
+      const docs = await col
+        .find({}, { projection: LIST_PROJECTION })
+        .sort({ name: 1 })
+        .limit(5000)
+        .maxTimeMS(20_000)
+        .toArray();
+      const data = docs.map(toProductDTO);
+      global._produtosListCache = { at: Date.now(), data };
+      return data;
+    })().catch((err) => {
+      if (global._produtosListCache?.inflight) {
+        global._produtosListCache.inflight = undefined;
+      }
+      throw err;
+    });
+
+    global._produtosListCache = {
+      at: cached?.at ?? 0,
+      data: cached?.data ?? [],
+      inflight,
+    };
+    return inflight;
+  }
+
+  const col = await productsCollection();
 
   try {
     const textDocs = await col
       .find({ $text: { $search: term } } as Filter<Product>, {
-        projection: { score: { $meta: "textScore" } },
+        projection: { ...LIST_PROJECTION, score: { $meta: "textScore" } },
       })
       .sort({ score: { $meta: "textScore" }, name: 1 })
       .limit(5000)
+      .maxTimeMS(20_000)
       .toArray();
 
     if (textDocs.length > 0) return textDocs.map(toProductDTO);
@@ -104,14 +163,18 @@ export async function listProducts(q?: string): Promise<ProductDTO[]> {
 
   const safe = escapeRegex(term);
   const docs = await col
-    .find({
-      $or: [
-        { name: { $regex: safe, $options: "i" } },
-        { notes: { $regex: safe, $options: "i" } },
-      ],
-    })
+    .find(
+      {
+        $or: [
+          { name: { $regex: safe, $options: "i" } },
+          { notes: { $regex: safe, $options: "i" } },
+        ],
+      },
+      { projection: LIST_PROJECTION },
+    )
     .sort({ name: 1 })
     .limit(5000)
+    .maxTimeMS(20_000)
     .toArray();
 
   return docs.map(toProductDTO);
@@ -137,6 +200,7 @@ export async function createProduct(input: ProductInput): Promise<ProductDTO> {
 
   try {
     const result = await col.insertOne(doc);
+    invalidateListCache();
     return toProductDTO({ ...doc, _id: result.insertedId });
   } catch (err) {
     if (isDuplicateKeyError(err)) {
@@ -156,6 +220,7 @@ export async function updateProduct(
   const col = await productsCollection();
 
   try {
+    const now = new Date();
     const result = await col.findOneAndUpdate(
       { _id: new ObjectId(id) },
       {
@@ -168,13 +233,16 @@ export async function updateProduct(
           discount_percentage: data.discount_percentage,
           discounted_value: data.discounted_value,
           notes: data.notes,
-          updated_at: new Date(),
+          updated_at: now,
         },
       },
       { returnDocument: "after" },
     );
 
-    if (!result) throw new Error("Produto não encontrado");
+    if (!result || !result._id) {
+      throw new Error("Produto não encontrado");
+    }
+    invalidateListCache();
     return toProductDTO(result);
   } catch (err) {
     if (isDuplicateKeyError(err)) {
@@ -189,4 +257,5 @@ export async function deleteProduct(id: string): Promise<void> {
   const col = await productsCollection();
   const result = await col.deleteOne({ _id: new ObjectId(id) });
   if (result.deletedCount === 0) throw new Error("Produto não encontrado");
+  invalidateListCache();
 }

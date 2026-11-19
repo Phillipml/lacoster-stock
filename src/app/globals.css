@@ -12,6 +12,8 @@
   --danger: #b42318;
   --danger-soft: #fde8e6;
   --shadow: 0 16px 36px rgba(18, 32, 24, 0.08);
+  --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
