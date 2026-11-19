@@ -170,22 +170,20 @@ function ProductViewModal({
   onClose: () => void;
 }) {
   const [showDiscounted, setShowDiscounted] = useState(false);
+  const notes = (product.notes || "").trim();
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
+    <div className="stock-modal-backdrop" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-view-title"
-        className="w-full max-w-lg rounded-3xl border border-line bg-bg-elevated p-6 shadow-[var(--shadow)]"
+        className="stock-modal-panel"
         onClick={(e) => e.stopPropagation()}
       >
         <h2
           id="product-view-title"
-          className="font-[family-name:var(--font-display)] text-2xl font-semibold leading-snug break-words text-ink [overflow-wrap:anywhere]"
+          className="font-[family-name:var(--font-display)] text-2xl font-semibold leading-snug break-words text-ink"
         >
           {product.name}
         </h2>
@@ -193,7 +191,7 @@ function ProductViewModal({
         <div className="mt-5 flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setShowDiscounted((v) => !v)}
+            onClick={() => setShowDiscounted(!showDiscounted)}
             title={
               showDiscounted
                 ? "Mostrar valor de venda"
@@ -204,11 +202,11 @@ function ProductViewModal({
                 ? "Mostrar valor de venda"
                 : "Mostrar valor com desconto"
             }
-            className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition ${
+            className={
               showDiscounted
-                ? "bg-brand text-white"
-                : "bg-brand-soft text-brand-deep hover:bg-brand/20"
-            }`}
+                ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand text-white"
+                : "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand-deep"
+            }
           >
             <IconMoney className="h-5 w-5" />
           </button>
@@ -230,8 +228,8 @@ function ProductViewModal({
           <p className="text-xs font-medium tracking-wide text-muted uppercase">
             Observação
           </p>
-          <div className="mt-1 max-h-48 overflow-y-auto break-words text-sm leading-relaxed text-ink whitespace-pre-wrap [overflow-wrap:anywhere]">
-            {product.notes?.trim() ? product.notes : "—"}
+          <div className="mt-1 max-h-48 overflow-y-auto break-words text-sm leading-relaxed text-ink whitespace-pre-wrap">
+            {notes ? notes : "—"}
           </div>
         </div>
 
@@ -239,7 +237,7 @@ function ProductViewModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-2xl border border-line bg-white px-4 py-2.5 font-medium transition hover:bg-bg"
+            className="rounded-2xl border border-line bg-white px-4 py-2.5 font-medium"
           >
             Fechar
           </button>
@@ -333,7 +331,7 @@ const ProductCard = memo(function ProductCard({
           onOpen(product);
         }
       }}
-      className="max-w-full min-w-0 cursor-pointer overflow-hidden rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)] transition hover:border-brand/40 hover:bg-brand-soft/20"
+      className="max-w-full min-w-0 cursor-pointer overflow-hidden rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)]"
     >
       <div className="flex min-w-0 items-start gap-2">
         <h3 className="min-w-0 flex-1 break-words text-base font-semibold leading-snug [overflow-wrap:anywhere]">
@@ -414,44 +412,66 @@ const ProductTableRow = memo(function ProductTableRow({
   onDelete: (id: string) => void;
   onOpen: (p: ProductDTO) => void;
 }) {
+  function openModal() {
+    onOpen(product);
+  }
+
   return (
-    <tr
-      className="cursor-pointer border-t border-line align-top transition hover:bg-brand-soft/40"
-      onClick={() => onOpen(product)}
-    >
-      <td className="min-w-[260px] w-[34%] max-w-[480px] border-r border-line px-2.5 py-2 font-medium">
-        <div className="break-words leading-snug whitespace-normal [overflow-wrap:anywhere]">
+    <tr className="cursor-pointer border-t align-top hover:bg-brand-soft/40">
+      <td
+        className="min-w-[260px] w-[34%] max-w-[480px] border-r px-2.5 py-2 font-medium"
+        onClick={openModal}
+      >
+        <div className="break-words leading-snug whitespace-normal">
           {product.name}
         </div>
       </td>
-      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
+      <td
+        className="border-r px-2.5 py-2 whitespace-nowrap"
+        onClick={openModal}
+      >
         {formatBRL(product.base_value)}
       </td>
-      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
+      <td
+        className="border-r px-2.5 py-2 whitespace-nowrap"
+        onClick={openModal}
+      >
         {product.markup_percentage}%
       </td>
-      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
+      <td
+        className="border-r px-2.5 py-2 whitespace-nowrap"
+        onClick={openModal}
+      >
         {formatBRL(product.final_value)}
       </td>
-      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
+      <td
+        className="border-r px-2.5 py-2 whitespace-nowrap"
+        onClick={openModal}
+      >
         {product.discount_percentage}%
       </td>
-      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap font-semibold text-brand">
+      <td
+        className="border-r px-2.5 py-2 whitespace-nowrap font-semibold text-brand"
+        onClick={openModal}
+      >
         {formatBRL(product.discounted_value)}
       </td>
-      <td className="min-w-[140px] w-[16%] max-w-[220px] border-r border-line px-2.5 py-2">
-        <div className="max-h-24 overflow-y-auto break-words text-[11px] leading-relaxed text-muted whitespace-pre-wrap [overflow-wrap:anywhere]">
+      <td
+        className="min-w-[140px] w-[16%] max-w-[220px] border-r px-2.5 py-2"
+        onClick={openModal}
+      >
+        <div className="max-h-24 overflow-y-auto break-words text-[11px] leading-relaxed text-muted whitespace-pre-wrap">
           {product.notes || "—"}
         </div>
       </td>
-      <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+      <td className="px-2 py-2">
         <div className="flex gap-1.5">
           <button
             type="button"
             onClick={() => onEdit(product)}
             title="Editar"
             aria-label="Editar"
-            className="rounded-lg border border-line p-1.5 text-ink transition hover:bg-bg"
+            className="rounded-lg border border-line p-1.5 text-ink"
           >
             <IconPencil className="h-3.5 w-3.5" />
           </button>
@@ -460,7 +480,7 @@ const ProductTableRow = memo(function ProductTableRow({
             onClick={() => onDelete(product.id)}
             title="Excluir"
             aria-label="Excluir"
-            className="rounded-lg bg-danger-soft p-1.5 text-danger transition hover:opacity-90"
+            className="rounded-lg bg-danger-soft p-1.5 text-danger"
           >
             <IconTrash className="h-3.5 w-3.5" />
           </button>
@@ -712,7 +732,7 @@ export function StockApp() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-[1400px] min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8">
+    <div className="mx-auto min-h-screen w-full max-w-[1400px] min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8">
       <header className="relative flex min-w-0 flex-col gap-4 border-b border-line pb-5">
         <h1 className="text-center font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-brand sm:absolute sm:inset-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:text-4xl">
           Lacoster Stock
@@ -810,8 +830,8 @@ export function StockApp() {
 
         {isDesktop ? (
           <div className="overflow-hidden rounded-3xl border border-line bg-bg-elevated shadow-[var(--shadow)]">
-            <div className="max-h-[calc(100dvh-240px)] overflow-auto">
-              <table className="min-w-full table-fixed border-collapse text-left text-xs">
+            <div className="max-h-[calc(100vh-240px)] overflow-auto">
+              <table className="stock-table min-w-full table-fixed border-collapse text-left text-xs">
                 <thead className="sticky top-0 z-10 bg-brand-soft text-ink shadow-[0_1px_0_var(--line)]">
                   <tr>
                     <th className="min-w-[260px] w-[34%] border-r border-line px-2.5 py-2.5 font-semibold">

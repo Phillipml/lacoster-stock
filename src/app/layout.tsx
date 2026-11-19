@@ -38,6 +38,10 @@ button:disabled{cursor:not-allowed!important}
 .stock-names-only .stock-sensitive{display:none!important}
 .stock-names-only table thead th:first-child,
 .stock-names-only table tbody td:first-child{border-right:none;width:100%}
+.stock-table th,.stock-table td{border-color:#6f8076!important}
+.stock-table tbody tr{border-top:1px solid #6f8076}
+.stock-modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.55)}
+.stock-modal-panel{width:100%;max-width:32rem;background:#fff;border:1px solid #6f8076;border-radius:24px;padding:24px;box-shadow:0 16px 36px rgba(18,32,24,0.18)}
 `}</style>
         {children}
       </body>

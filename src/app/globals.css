@@ -5,7 +5,7 @@
   --bg-elevated: #ffffff;
   --ink: #122018;
   --muted: #5a6a60;
-  --line: #cfd8d2;
+  --line: #8f9f94;
   --brand: #186a43;
   --brand-deep: #0f4630;
   --brand-soft: #d5ede0;
@@ -87,4 +87,14 @@ textarea {
 .stock-names-only table tbody td:first-child {
   border-right: none;
   width: 100%;
+}
+
+/* tabela: divisórias mais escuras + compat */
+.stock-table th,
+.stock-table td {
+  border-color: #6f8076 !important;
+}
+
+.stock-table tbody tr {
+  border-top: 1px solid #6f8076;
 }
