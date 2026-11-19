@@ -17,6 +17,41 @@ type EditorProps = {
   onCancel: () => void;
 };
 
+function IconCheck({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
+function IconX({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
 function useProductDraft(initial?: ProductDTO | null) {
   const [draft, setDraft] = useState(() => toDraft(initial));
   const [localError, setLocalError] = useState("");
@@ -44,15 +79,23 @@ export function ProductInlineEditorRow({
   onCancel,
 }: EditorProps) {
   const { draft, patch, localError, save } = useProductDraft(initial);
+  const isNew = !initial;
 
   return (
-    <tr className="border-t border-brand/40 bg-brand-soft/20 align-top">
+    <tr
+      className={
+        isNew
+          ? "border-t border-line bg-brand-soft align-top"
+          : "border-t border-brand/40 bg-brand-soft/20 align-top"
+      }
+    >
       <td className="px-2 py-2">
         <input
           value={draft.name}
           onChange={(e) => patch({ name: e.target.value })}
           className={inputClass}
           placeholder="Produto"
+          autoFocus={isNew}
         />
       </td>
       <td className="px-2 py-2">
@@ -107,22 +150,48 @@ export function ProductInlineEditorRow({
         ) : null}
       </td>
       <td className="px-2 py-2">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save(onSave)}
-            className="rounded-xl bg-brand px-3 py-1.5 font-semibold text-white disabled:opacity-60"
-          >
-            {saving ? "..." : "Salvar"}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-xl border border-line px-3 py-1.5 font-medium"
-          >
-            Cancelar
-          </button>
+        <div className="flex items-center gap-1">
+          {isNew ? (
+            <>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void save(onSave)}
+                title="Salvar"
+                aria-label="Salvar"
+                className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-brand transition hover:bg-white hover:text-brand-deep disabled:opacity-60"
+              >
+                <IconCheck className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                title="Cancelar"
+                aria-label="Cancelar"
+                className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-danger transition hover:bg-white hover:text-[#911b12]"
+              >
+                <IconX className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void save(onSave)}
+                className="rounded-xl bg-brand px-3 py-1.5 font-semibold text-white disabled:opacity-60"
+              >
+                {saving ? "..." : "Salvar"}
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="rounded-xl bg-danger px-3 py-1.5 font-semibold text-white transition hover:bg-[#911b12]"
+              >
+                Cancelar
+              </button>
+            </>
+          )}
         </div>
       </td>
     </tr>
@@ -137,12 +206,46 @@ export function ProductInlineEditorCard({
   onCancel,
 }: EditorProps & { title?: string }) {
   const { draft, patch, localError, save } = useProductDraft(initial);
+  const isNew = !initial;
 
   return (
-    <article className="rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]">
-      {title ? (
-        <p className="mb-3 text-sm font-semibold text-brand">{title}</p>
-      ) : null}
+    <article
+      className={
+        isNew
+          ? "rounded-3xl border border-line bg-brand-soft p-4 shadow-[var(--shadow)]"
+          : "rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]"
+      }
+    >
+      <div className="mb-3 flex items-center justify-between gap-3">
+        {title ? (
+          <p className="text-sm font-semibold text-brand">{title}</p>
+        ) : (
+          <span />
+        )}
+        {isNew ? (
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => void save(onSave)}
+              title="Salvar"
+              aria-label="Salvar"
+              className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-lg text-brand transition hover:bg-white hover:text-brand-deep disabled:opacity-60"
+            >
+              <IconCheck className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              title="Cancelar"
+              aria-label="Cancelar"
+              className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-lg text-danger transition hover:bg-white hover:text-[#911b12]"
+            >
+              <IconX className="h-6 w-6" />
+            </button>
+          </div>
+        ) : null}
+      </div>
       <div className="grid gap-2">
         <input
           value={draft.name}
@@ -150,41 +253,43 @@ export function ProductInlineEditorCard({
           placeholder="Produto"
           className={inputClass}
         />
-        <input
-          value={draft.base_value}
-          onChange={(e) => patch({ base_value: e.target.value })}
-          inputMode="decimal"
-          placeholder="Custo"
-          className={inputClass}
-        />
-        <input
-          value={draft.markup_percentage}
-          onChange={(e) => patch({ markup_percentage: e.target.value })}
-          inputMode="decimal"
-          placeholder="% lucro"
-          className={inputClass}
-        />
-        <input
-          value={draft.final_value}
-          onChange={(e) => patch({ final_value: e.target.value })}
-          inputMode="decimal"
-          placeholder="Venda"
-          className={inputClass}
-        />
-        <input
-          value={draft.discount_percentage}
-          onChange={(e) => patch({ discount_percentage: e.target.value })}
-          inputMode="decimal"
-          placeholder="% desc"
-          className={inputClass}
-        />
-        <input
-          value={draft.discounted_value}
-          onChange={(e) => patch({ discounted_value: e.target.value })}
-          inputMode="decimal"
-          placeholder="Final"
-          className={inputClass}
-        />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            value={draft.base_value}
+            onChange={(e) => patch({ base_value: e.target.value })}
+            inputMode="decimal"
+            placeholder="Custo"
+            className={inputClass}
+          />
+          <input
+            value={draft.markup_percentage}
+            onChange={(e) => patch({ markup_percentage: e.target.value })}
+            inputMode="decimal"
+            placeholder="% lucro"
+            className={inputClass}
+          />
+          <input
+            value={draft.final_value}
+            onChange={(e) => patch({ final_value: e.target.value })}
+            inputMode="decimal"
+            placeholder="Venda"
+            className={inputClass}
+          />
+          <input
+            value={draft.discount_percentage}
+            onChange={(e) => patch({ discount_percentage: e.target.value })}
+            inputMode="decimal"
+            placeholder="% desc"
+            className={inputClass}
+          />
+          <input
+            value={draft.discounted_value}
+            onChange={(e) => patch({ discounted_value: e.target.value })}
+            inputMode="decimal"
+            placeholder="Final"
+            className={`${inputClass} col-span-2`}
+          />
+        </div>
         <input
           value={draft.notes}
           onChange={(e) => patch({ notes: e.target.value })}
@@ -195,23 +300,25 @@ export function ProductInlineEditorCard({
       {localError ? (
         <p className="mt-2 text-sm text-danger">{localError}</p>
       ) : null}
-      <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => void save(onSave)}
-          className="flex-1 rounded-2xl bg-brand px-3 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {saving ? "Salvando..." : "Salvar"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-2xl border border-line px-3 py-2.5 text-sm font-medium"
-        >
-          Cancelar
-        </button>
-      </div>
+      {!isNew ? (
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => void save(onSave)}
+            className="flex-1 rounded-2xl bg-brand px-3 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {saving ? "Salvando..." : "Salvar"}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-2xl bg-danger px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#911b12]"
+          >
+            Cancelar
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }

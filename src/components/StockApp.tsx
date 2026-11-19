@@ -569,31 +569,31 @@ export function StockApp() {
           </p>
         </div>
 
-        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
           <button
             type="button"
             onClick={downloadBackup}
             disabled={produtos.length === 0}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-deep px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50"
+            className="inline-flex w-fit items-center justify-center gap-1.5 self-end rounded-xl bg-brand-deep px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50"
           >
             <IconDatabase className="h-3.5 w-3.5 shrink-0" />
             Backup
           </button>
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:justify-end">
             <button
               type="button"
               onClick={() => {
                 setEditingId(null);
                 setCreating(true);
               }}
-              className="rounded-2xl bg-brand px-4 py-3 font-semibold text-white transition hover:bg-brand-deep"
+              className="rounded-2xl bg-brand px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-deep sm:px-4 sm:py-3 sm:text-base"
             >
               Novo produto
             </button>
             <button
               type="button"
               onClick={() => void logout()}
-              className="rounded-2xl border border-line bg-bg-elevated px-4 py-3 font-medium transition hover:bg-white"
+              className="rounded-2xl bg-danger px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#911b12] sm:px-4 sm:py-3 sm:text-base"
             >
               Sair
             </button>

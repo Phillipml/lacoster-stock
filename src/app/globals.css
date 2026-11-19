@@ -59,3 +59,17 @@ textarea {
 ::selection {
   background: #cfe8da;
 }
+
+@layer base {
+  button,
+  [type="button"],
+  [type="submit"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [type="button"]:disabled,
+  [type="submit"]:disabled {
+    cursor: not-allowed;
+  }
+}

@@ -30,6 +30,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full antialiased" suppressHydrationWarning>
+        <style>{`button, [type=button], [type=submit]{cursor:pointer!important}button:disabled{cursor:not-allowed!important}`}</style>
         {children}
       </body>
     </html>
