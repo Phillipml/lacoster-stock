@@ -143,6 +143,112 @@ function IconDatabase({ className }: { className?: string }) {
   );
 }
 
+function IconMoney({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v12" />
+      <path d="M15.5 9.5c0-1.5-1.3-2.5-3.5-2.5S8.5 8 8.5 9.5 9.8 11.5 12 12s3.5 1 3.5 2.5-1.3 2.5-3.5 2.5-3.5-1-3.5-2.5" />
+    </svg>
+  );
+}
+
+function ProductViewModal({
+  product,
+  onClose,
+}: {
+  product: ProductDTO;
+  onClose: () => void;
+}) {
+  const [showDiscounted, setShowDiscounted] = useState(false);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-view-title"
+        className="w-full max-w-lg rounded-3xl border border-line bg-bg-elevated p-6 shadow-[var(--shadow)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2
+          id="product-view-title"
+          className="font-[family-name:var(--font-display)] text-2xl font-semibold leading-snug break-words text-ink [overflow-wrap:anywhere]"
+        >
+          {product.name}
+        </h2>
+
+        <div className="mt-5 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowDiscounted((v) => !v)}
+            title={
+              showDiscounted
+                ? "Mostrar valor de venda"
+                : "Mostrar valor com desconto"
+            }
+            aria-label={
+              showDiscounted
+                ? "Mostrar valor de venda"
+                : "Mostrar valor com desconto"
+            }
+            className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition ${
+              showDiscounted
+                ? "bg-brand text-white"
+                : "bg-brand-soft text-brand-deep hover:bg-brand/20"
+            }`}
+          >
+            <IconMoney className="h-5 w-5" />
+          </button>
+          <div className="min-w-0">
+            <p className="text-xs font-medium tracking-wide text-muted uppercase">
+              {showDiscounted ? "Final com desconto" : "Venda"}
+            </p>
+            <p className="font-[family-name:var(--font-display)] text-3xl font-semibold text-brand">
+              {formatBRL(
+                showDiscounted
+                  ? product.discounted_value
+                  : product.final_value,
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <p className="text-xs font-medium tracking-wide text-muted uppercase">
+            Observação
+          </p>
+          <div className="mt-1 max-h-48 overflow-y-auto break-words text-sm leading-relaxed text-ink whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {product.notes?.trim() ? product.notes : "—"}
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-2xl border border-line bg-white px-4 py-2.5 font-medium transition hover:bg-bg"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LoadingSpinner({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <span
@@ -152,11 +258,17 @@ function LoadingSpinner({ className = "h-8 w-8" }: { className?: string }) {
   );
 }
 
-function ListLoading({ variant }: { variant: "cards" | "table" | "block" }) {
+function ListLoading({
+  variant,
+  colSpan = 8,
+}: {
+  variant: "cards" | "table" | "block";
+  colSpan?: number;
+}) {
   if (variant === "table") {
     return (
       <tr>
-        <td colSpan={8} className="px-4 py-12">
+        <td colSpan={colSpan} className="px-4 py-12">
           <div className="flex flex-col items-center justify-center gap-3">
             <LoadingSpinner />
             <span className="text-sm text-muted">Carregando estoque…</span>
@@ -203,18 +315,34 @@ const ProductCard = memo(function ProductCard({
   product,
   onEdit,
   onDelete,
+  onOpen,
 }: {
   product: ProductDTO;
   onEdit: (p: ProductDTO) => void;
   onDelete: (id: string) => void;
+  onOpen: (p: ProductDTO) => void;
 }) {
   return (
-    <article className="max-w-full min-w-0 overflow-hidden rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)]">
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(product)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen(product);
+        }
+      }}
+      className="max-w-full min-w-0 cursor-pointer overflow-hidden rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)] transition hover:border-brand/40 hover:bg-brand-soft/20"
+    >
       <div className="flex min-w-0 items-start gap-2">
         <h3 className="min-w-0 flex-1 break-words text-base font-semibold leading-snug [overflow-wrap:anywhere]">
           {product.name}
         </h3>
-        <div className="flex shrink-0 gap-1.5">
+        <div
+          className="stock-sensitive flex shrink-0 gap-1.5"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             onClick={() => onEdit(product)}
@@ -235,40 +363,42 @@ const ProductCard = memo(function ProductCard({
           </button>
         </div>
       </div>
-      <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand">
-        {formatBRL(product.discounted_value)}
-      </p>
-      <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-muted">
-        <div className="min-w-0">
-          <dt className="text-xs">Custo</dt>
-          <dd className="truncate font-medium text-ink">
-            {formatBRL(product.base_value)}
-          </dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-xs">Lucro</dt>
-          <dd className="truncate font-medium text-ink">
-            {product.markup_percentage}%
-          </dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-xs">Venda</dt>
-          <dd className="truncate font-medium text-ink">
-            {formatBRL(product.final_value)}
-          </dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-xs">Desc</dt>
-          <dd className="truncate font-medium text-ink">
-            {product.discount_percentage}%
-          </dd>
-        </div>
-      </dl>
-      {product.notes ? (
-        <div className="mt-2 max-h-24 overflow-x-hidden overflow-y-auto text-xs leading-relaxed break-words text-muted whitespace-pre-wrap [overflow-wrap:anywhere]">
-          {product.notes}
-        </div>
-      ) : null}
+      <div className="stock-sensitive">
+        <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand">
+          {formatBRL(product.discounted_value)}
+        </p>
+        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-muted">
+          <div className="min-w-0">
+            <dt className="text-xs">Custo</dt>
+            <dd className="truncate font-medium text-ink">
+              {formatBRL(product.base_value)}
+            </dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs">Lucro</dt>
+            <dd className="truncate font-medium text-ink">
+              {product.markup_percentage}%
+            </dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs">Venda</dt>
+            <dd className="truncate font-medium text-ink">
+              {formatBRL(product.final_value)}
+            </dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs">Desc</dt>
+            <dd className="truncate font-medium text-ink">
+              {product.discount_percentage}%
+            </dd>
+          </div>
+        </dl>
+        {product.notes ? (
+          <div className="mt-2 max-h-24 overflow-x-hidden overflow-y-auto text-xs leading-relaxed break-words text-muted whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {product.notes}
+          </div>
+        ) : null}
+      </div>
     </article>
   );
 });
@@ -277,55 +407,62 @@ const ProductTableRow = memo(function ProductTableRow({
   product,
   onEdit,
   onDelete,
+  onOpen,
 }: {
   product: ProductDTO;
   onEdit: (p: ProductDTO) => void;
   onDelete: (id: string) => void;
+  onOpen: (p: ProductDTO) => void;
 }) {
   return (
-    <tr className="border-t border-line align-top">
-      <td className="max-w-[220px] px-3 py-3 font-medium">
-        <div className="break-words leading-snug whitespace-normal">
+    <tr
+      className="cursor-pointer border-t border-line align-top transition hover:bg-brand-soft/40"
+      onClick={() => onOpen(product)}
+    >
+      <td className="min-w-[260px] w-[34%] max-w-[480px] border-r border-line px-2.5 py-2 font-medium">
+        <div className="break-words leading-snug whitespace-normal [overflow-wrap:anywhere]">
           {product.name}
         </div>
       </td>
-      <td className="px-3 py-3 whitespace-nowrap">
+      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
         {formatBRL(product.base_value)}
       </td>
-      <td className="px-3 py-3 whitespace-nowrap">{product.markup_percentage}%</td>
-      <td className="px-3 py-3 whitespace-nowrap">
+      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
+        {product.markup_percentage}%
+      </td>
+      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
         {formatBRL(product.final_value)}
       </td>
-      <td className="px-3 py-3 whitespace-nowrap">
+      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap">
         {product.discount_percentage}%
       </td>
-      <td className="px-3 py-3 whitespace-nowrap font-semibold text-brand">
+      <td className="border-r border-line px-2.5 py-2 whitespace-nowrap font-semibold text-brand">
         {formatBRL(product.discounted_value)}
       </td>
-      <td className="min-w-[280px] max-w-[420px] w-[32%] px-3 py-3">
-        <div className="max-h-24 overflow-y-auto break-words text-xs leading-relaxed text-muted whitespace-pre-wrap">
+      <td className="min-w-[140px] w-[16%] max-w-[220px] border-r border-line px-2.5 py-2">
+        <div className="max-h-24 overflow-y-auto break-words text-[11px] leading-relaxed text-muted whitespace-pre-wrap [overflow-wrap:anywhere]">
           {product.notes || "—"}
         </div>
       </td>
-      <td className="px-2 py-3">
+      <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
         <div className="flex gap-1.5">
           <button
             type="button"
             onClick={() => onEdit(product)}
             title="Editar"
             aria-label="Editar"
-            className="rounded-xl border border-line p-2 text-ink transition hover:bg-bg"
+            className="rounded-lg border border-line p-1.5 text-ink transition hover:bg-bg"
           >
-            <IconPencil className="h-4 w-4" />
+            <IconPencil className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(product.id)}
             title="Excluir"
             aria-label="Excluir"
-            className="rounded-xl bg-danger-soft p-2 text-danger transition hover:opacity-90"
+            className="rounded-lg bg-danger-soft p-1.5 text-danger transition hover:opacity-90"
           >
-            <IconTrash className="h-4 w-4" />
+            <IconTrash className="h-3.5 w-3.5" />
           </button>
         </div>
       </td>
@@ -345,6 +482,15 @@ export function StockApp() {
   const [saving, setSaving] = useState(false);
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
   const [backupPromptOpen, setBackupPromptOpen] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<ProductDTO | null>(null);
+
+  const openView = useCallback((p: ProductDTO) => {
+    setViewingProduct(p);
+  }, []);
+
+  const closeView = useCallback(() => {
+    setViewingProduct(null);
+  }, []);
 
   const load = useCallback(
     async (signal?: AbortSignal, opts?: { soft?: boolean }) => {
@@ -402,12 +548,6 @@ export function StockApp() {
       return name.includes(term) || notes.includes(term);
     });
   }, [produtos, deferredQ]);
-
-  const total = useMemo(
-    () =>
-      filtered.reduce((acc, p) => acc + (Number(p.discounted_value) || 0), 0),
-    [filtered],
-  );
 
   const editingProduct = useMemo(
     () => produtos.find((p) => p.id === editingId) ?? null,
@@ -571,37 +711,25 @@ export function StockApp() {
     setBackupPromptOpen(false);
   }
 
-  const countLabel =
-    deferredQ.trim() && filtered.length !== produtos.length
-      ? `${filtered.length} de ${produtos.length} produto(s)`
-      : `${produtos.length} produto(s)`;
-
   return (
     <div className="mx-auto min-h-dvh w-full max-w-[1400px] min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8">
-      <header className="flex min-w-0 flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <p className="font-[family-name:var(--font-display)] text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-            Lacoster Stock
-          </p>
-          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight sm:text-4xl">
-            Estoque
-          </h1>
-          <p className="mt-1 break-words text-sm text-muted">
-            {countLabel} · soma final {formatBRL(total)}
-          </p>
-        </div>
+      <header className="relative flex min-w-0 flex-col gap-4 border-b border-line pb-5">
+        <h1 className="text-center font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-brand sm:absolute sm:inset-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:text-4xl">
+          Lacoster Stock
+        </h1>
 
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+        <div className="relative z-10 flex w-full items-start justify-between gap-3">
           <button
             type="button"
             onClick={downloadBackup}
             disabled={produtos.length === 0}
-            className="inline-flex w-fit items-center justify-center gap-1.5 self-end rounded-xl bg-brand-deep px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50"
+            className="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-brand-deep px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50"
           >
             <IconDatabase className="h-3.5 w-3.5 shrink-0" />
             Backup
           </button>
-          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:justify-end">
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={() => {
@@ -638,7 +766,7 @@ export function StockApp() {
         </p>
       ) : null}
 
-      <section className="mt-5">
+      <section className={viewingProduct ? "mt-5 stock-names-only" : "mt-5"}>
         {isDesktop === false ? (
           <div className="grid min-w-0 gap-3 overflow-x-hidden">
             {creating ? (
@@ -672,6 +800,7 @@ export function StockApp() {
                     product={p}
                     onEdit={startEdit}
                     onDelete={removeProduct}
+                    onOpen={openView}
                   />
                 ),
               )
@@ -681,20 +810,32 @@ export function StockApp() {
 
         {isDesktop ? (
           <div className="overflow-hidden rounded-3xl border border-line bg-bg-elevated shadow-[var(--shadow)]">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-brand-soft/60 text-ink">
+            <div className="max-h-[calc(100dvh-240px)] overflow-auto">
+              <table className="min-w-full table-fixed border-collapse text-left text-xs">
+                <thead className="sticky top-0 z-10 bg-brand-soft text-ink shadow-[0_1px_0_var(--line)]">
                   <tr>
-                    <th className="px-3 py-3 font-semibold">Produto</th>
-                    <th className="px-3 py-3 font-semibold">Custo</th>
-                    <th className="px-3 py-3 font-semibold">Lucro</th>
-                    <th className="px-3 py-3 font-semibold">Venda</th>
-                    <th className="px-3 py-3 font-semibold">Desc</th>
-                    <th className="px-3 py-3 font-semibold">Final</th>
-                    <th className="min-w-[280px] w-[32%] px-3 py-3 font-semibold">
+                    <th className="min-w-[260px] w-[34%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Produto
+                    </th>
+                    <th className="w-[9%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Custo
+                    </th>
+                    <th className="w-[7%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Lucro
+                    </th>
+                    <th className="w-[9%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Venda
+                    </th>
+                    <th className="w-[7%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Desc
+                    </th>
+                    <th className="w-[9%] border-r border-line px-2.5 py-2.5 font-semibold">
+                      Final
+                    </th>
+                    <th className="min-w-[140px] w-[16%] border-r border-line px-2.5 py-2.5 font-semibold">
                       Observação
                     </th>
-                    <th className="w-20 px-2 py-3 font-semibold" />
+                    <th className="w-[9%] px-2 py-2.5 font-semibold" />
                   </tr>
                 </thead>
                 <tbody>
@@ -730,6 +871,7 @@ export function StockApp() {
                           product={p}
                           onEdit={startEdit}
                           onDelete={removeProduct}
+                          onOpen={openView}
                         />
                       ),
                     )
@@ -742,6 +884,10 @@ export function StockApp() {
 
         {isDesktop === null ? <ListLoading variant="block" /> : null}
       </section>
+
+      {viewingProduct ? (
+        <ProductViewModal product={viewingProduct} onClose={closeView} />
+      ) : null}
 
       {backupPromptOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

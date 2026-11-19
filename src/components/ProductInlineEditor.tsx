@@ -85,20 +85,26 @@ export function ProductInlineEditorRow({
     <tr
       className={
         isNew
-          ? "border-t border-line bg-brand-soft align-top"
-          : "border-t border-brand/40 bg-brand-soft/20 align-top"
+          ? "stock-sensitive border-t border-line bg-brand-soft align-top"
+          : "stock-sensitive border-t border-brand/40 bg-brand-soft/20 align-top"
       }
     >
-      <td className="px-2 py-2">
-        <input
+      <td className="min-w-[260px] w-[34%] border-r border-line px-2 py-2">
+        <textarea
           value={draft.name}
-          onChange={(e) => patch({ name: e.target.value })}
-          className={inputClass}
+          onChange={(e) =>
+            patch({ name: e.target.value.replace(/\n/g, " ") })
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.preventDefault();
+          }}
+          className={`${inputClass} max-h-24 resize-none overflow-x-hidden overflow-y-auto break-words [overflow-wrap:anywhere]`}
           placeholder="Produto"
+          rows={2}
           autoFocus={isNew}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="w-[9%] border-r border-line px-2 py-2">
         <input
           value={draft.base_value}
           onChange={(e) => patch({ base_value: e.target.value })}
@@ -106,7 +112,7 @@ export function ProductInlineEditorRow({
           className={inputClass}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="w-[7%] border-r border-line px-2 py-2">
         <input
           value={draft.markup_percentage}
           onChange={(e) => patch({ markup_percentage: e.target.value })}
@@ -114,7 +120,7 @@ export function ProductInlineEditorRow({
           className={inputClass}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="w-[9%] border-r border-line px-2 py-2">
         <input
           value={draft.final_value}
           onChange={(e) => patch({ final_value: e.target.value })}
@@ -122,7 +128,7 @@ export function ProductInlineEditorRow({
           className={inputClass}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="w-[7%] border-r border-line px-2 py-2">
         <input
           value={draft.discount_percentage}
           onChange={(e) => patch({ discount_percentage: e.target.value })}
@@ -130,7 +136,7 @@ export function ProductInlineEditorRow({
           className={inputClass}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="w-[9%] border-r border-line px-2 py-2">
         <input
           value={draft.discounted_value}
           onChange={(e) => patch({ discounted_value: e.target.value })}
@@ -138,7 +144,7 @@ export function ProductInlineEditorRow({
           className={inputClass}
         />
       </td>
-      <td className="px-2 py-2">
+      <td className="min-w-[140px] w-[16%] border-r border-line px-2 py-2">
         <textarea
           value={draft.notes}
           onChange={(e) => patch({ notes: e.target.value })}
@@ -213,8 +219,8 @@ export function ProductInlineEditorCard({
     <article
       className={
         isNew
-          ? "max-w-full min-w-0 overflow-hidden rounded-3xl border border-line bg-brand-soft p-4 shadow-[var(--shadow)]"
-          : "max-w-full min-w-0 overflow-hidden rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]"
+          ? "stock-sensitive max-w-full min-w-0 overflow-hidden rounded-3xl border border-line bg-brand-soft p-4 shadow-[var(--shadow)]"
+          : "stock-sensitive max-w-full min-w-0 overflow-hidden rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]"
       }
     >
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -248,11 +254,17 @@ export function ProductInlineEditorCard({
         ) : null}
       </div>
       <div className="grid gap-2">
-        <input
+        <textarea
           value={draft.name}
-          onChange={(e) => patch({ name: e.target.value })}
+          onChange={(e) =>
+            patch({ name: e.target.value.replace(/\n/g, " ") })
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.preventDefault();
+          }}
           placeholder="Produto"
-          className={inputClass}
+          rows={2}
+          className={`${inputClass} max-h-24 resize-none overflow-x-hidden overflow-y-auto break-words [overflow-wrap:anywhere]`}
         />
         <div className="grid grid-cols-2 gap-2">
           <input

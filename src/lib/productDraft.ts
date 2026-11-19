@@ -127,4 +127,4 @@ export function draftToPayload(d: Draft): FormPayload {
 }
 
 export const inputClass =
-  "w-full min-w-0 rounded-xl border border-line bg-white px-2.5 py-2 text-sm outline-none ring-brand/30 focus:ring-2";
+  "w-full min-w-0 rounded-xl border border-line bg-white px-2 py-1.5 text-xs outline-none ring-brand/30 focus:ring-2";

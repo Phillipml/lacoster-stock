@@ -30,7 +30,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full antialiased" suppressHydrationWarning>
-        <style>{`button, [type=button], [type=submit]{cursor:pointer!important}button:disabled{cursor:not-allowed!important}`}</style>
+        <style>{`
+button,[type=button],[type=submit]{cursor:pointer!important}
+button:disabled{cursor:not-allowed!important}
+.stock-names-only table thead th:not(:first-child),
+.stock-names-only table tbody td:not(:first-child),
+.stock-names-only .stock-sensitive{display:none!important}
+.stock-names-only table thead th:first-child,
+.stock-names-only table tbody td:first-child{border-right:none;width:100%}
+`}</style>
         {children}
       </body>
     </html>

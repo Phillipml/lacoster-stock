@@ -75,3 +75,16 @@ textarea {
     cursor: not-allowed;
   }
 }
+
+/* modal aberto: só nomes no fundo (CSS, sem re-render da lista) */
+.stock-names-only table thead th:not(:first-child),
+.stock-names-only table tbody td:not(:first-child),
+.stock-names-only .stock-sensitive {
+  display: none !important;
+}
+
+.stock-names-only table thead th:first-child,
+.stock-names-only table tbody td:first-child {
+  border-right: none;
+  width: 100%;
+}
