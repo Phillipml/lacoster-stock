@@ -464,8 +464,8 @@ const ProductTableRow = memo(function ProductTableRow({
           {product.notes || "—"}
         </div>
       </td>
-      <td className="px-2 py-2">
-        <div className="flex gap-1.5">
+      <td className="px-2 py-2 align-middle">
+        <div className="flex items-center justify-center gap-1.5">
           <button
             type="button"
             onClick={() => onEdit(product)}
@@ -733,41 +733,41 @@ export function StockApp() {
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[1400px] min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8">
-      <header className="relative flex min-w-0 flex-col gap-4 border-b border-line pb-5">
-        <h1 className="text-center font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-brand sm:absolute sm:inset-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:text-4xl">
-          Lacoster Stock
-        </h1>
-
-        <div className="relative z-10 flex w-full items-start justify-between gap-3">
+      <header className="grid min-w-0 grid-cols-1 items-center gap-3 border-b border-line pb-5 sm:grid-cols-[1fr_auto_1fr]">
+        <div className="flex justify-start">
           <button
             type="button"
             onClick={downloadBackup}
             disabled={produtos.length === 0}
-            className="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-brand-deep px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50"
+            className="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-brand-deep px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0a3322] disabled:opacity-50 sm:py-3"
           >
             <IconDatabase className="h-3.5 w-3.5 shrink-0" />
             Backup
           </button>
+        </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setCreating(true);
-              }}
-              className="rounded-2xl bg-brand px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-deep sm:px-4 sm:py-3 sm:text-base"
-            >
-              Novo produto
-            </button>
-            <button
-              type="button"
-              onClick={() => void logout()}
-              className="rounded-2xl bg-danger px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#911b12] sm:px-4 sm:py-3 sm:text-base"
-            >
-              Sair
-            </button>
-          </div>
+        <h1 className="order-first text-center font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-brand sm:order-none sm:text-4xl">
+          Lacoster Stock
+        </h1>
+
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEditingId(null);
+              setCreating(true);
+            }}
+            className="rounded-2xl bg-brand px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-deep sm:px-4 sm:py-3 sm:text-base"
+          >
+            Novo produto
+          </button>
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="rounded-2xl bg-danger px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#911b12] sm:px-4 sm:py-3 sm:text-base"
+          >
+            Sair
+          </button>
         </div>
       </header>
 
@@ -855,7 +855,9 @@ export function StockApp() {
                     <th className="min-w-[140px] w-[16%] border-r border-line px-2.5 py-2.5 font-semibold">
                       Observação
                     </th>
-                    <th className="w-[9%] px-2 py-2.5 font-semibold" />
+                    <th className="w-[9%] px-2 py-2.5 text-center font-semibold">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
