@@ -139,11 +139,12 @@ export function ProductInlineEditorRow({
         />
       </td>
       <td className="px-2 py-2">
-        <input
+        <textarea
           value={draft.notes}
           onChange={(e) => patch({ notes: e.target.value })}
           placeholder="Observação"
-          className={inputClass}
+          rows={3}
+          className={`${inputClass} max-h-24 resize-none overflow-x-hidden overflow-y-auto whitespace-pre-wrap break-words [overflow-wrap:anywhere]`}
         />
         {localError ? (
           <p className="mt-1 text-xs text-danger">{localError}</p>
@@ -212,8 +213,8 @@ export function ProductInlineEditorCard({
     <article
       className={
         isNew
-          ? "rounded-3xl border border-line bg-brand-soft p-4 shadow-[var(--shadow)]"
-          : "rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]"
+          ? "max-w-full min-w-0 overflow-hidden rounded-3xl border border-line bg-brand-soft p-4 shadow-[var(--shadow)]"
+          : "max-w-full min-w-0 overflow-hidden rounded-3xl border border-brand bg-bg-elevated p-4 shadow-[var(--shadow)]"
       }
     >
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -290,11 +291,12 @@ export function ProductInlineEditorCard({
             className={`${inputClass} col-span-2`}
           />
         </div>
-        <input
+        <textarea
           value={draft.notes}
           onChange={(e) => patch({ notes: e.target.value })}
           placeholder="Observação"
-          className={inputClass}
+          rows={3}
+          className={`${inputClass} max-h-24 resize-none overflow-x-hidden overflow-y-auto whitespace-pre-wrap break-words [overflow-wrap:anywhere]`}
         />
       </div>
       {localError ? (

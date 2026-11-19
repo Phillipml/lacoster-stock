@@ -209,9 +209,9 @@ const ProductCard = memo(function ProductCard({
   onDelete: (id: string) => void;
 }) {
   return (
-    <article className="rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)]">
-      <div className="flex items-start gap-3">
-        <h3 className="min-w-0 flex-1 break-words text-base font-semibold leading-snug">
+    <article className="max-w-full min-w-0 overflow-hidden rounded-3xl border border-line bg-bg-elevated p-4 shadow-[var(--shadow)]">
+      <div className="flex min-w-0 items-start gap-2">
+        <h3 className="min-w-0 flex-1 break-words text-base font-semibold leading-snug [overflow-wrap:anywhere]">
           {product.name}
         </h3>
         <div className="flex shrink-0 gap-1.5">
@@ -238,12 +238,34 @@ const ProductCard = memo(function ProductCard({
       <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand">
         {formatBRL(product.discounted_value)}
       </p>
-      <p className="mt-1 text-sm text-muted">
-        Custo {formatBRL(product.base_value)} · Lucro {product.markup_percentage}%
-        · Venda {formatBRL(product.final_value)} · Desc {product.discount_percentage}%
-      </p>
+      <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-muted">
+        <div className="min-w-0">
+          <dt className="text-xs">Custo</dt>
+          <dd className="truncate font-medium text-ink">
+            {formatBRL(product.base_value)}
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="text-xs">Lucro</dt>
+          <dd className="truncate font-medium text-ink">
+            {product.markup_percentage}%
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="text-xs">Venda</dt>
+          <dd className="truncate font-medium text-ink">
+            {formatBRL(product.final_value)}
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="text-xs">Desc</dt>
+          <dd className="truncate font-medium text-ink">
+            {product.discount_percentage}%
+          </dd>
+        </div>
+      </dl>
       {product.notes ? (
-        <div className="mt-2 max-h-24 overflow-y-auto break-words text-xs leading-relaxed text-muted whitespace-pre-wrap">
+        <div className="mt-2 max-h-24 overflow-x-hidden overflow-y-auto text-xs leading-relaxed break-words text-muted whitespace-pre-wrap [overflow-wrap:anywhere]">
           {product.notes}
         </div>
       ) : null}
@@ -555,16 +577,16 @@ export function StockApp() {
       : `${produtos.length} produto(s)`;
 
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-[1400px] px-4 py-5 sm:px-6 sm:py-8">
-      <header className="flex flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+    <div className="mx-auto min-h-dvh w-full max-w-[1400px] min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-8">
+      <header className="flex min-w-0 flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <p className="font-[family-name:var(--font-display)] text-xs font-semibold tracking-[0.2em] text-brand uppercase">
             Lacoster Stock
           </p>
           <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight sm:text-4xl">
             Estoque
           </h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 break-words text-sm text-muted">
             {countLabel} · soma final {formatBRL(total)}
           </p>
         </div>
@@ -618,7 +640,7 @@ export function StockApp() {
 
       <section className="mt-5">
         {isDesktop === false ? (
-          <div className="grid gap-3">
+          <div className="grid min-w-0 gap-3 overflow-x-hidden">
             {creating ? (
               <ProductInlineEditorCard
                 title="Novo produto"
